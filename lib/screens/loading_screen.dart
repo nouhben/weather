@@ -1,8 +1,10 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:weather/screens/location_screen.dart';
 import 'package:weather/services/location.dart';
+import 'package:weather/services/networking.dart';
+
+const String kApiKey = '242ace4bcb3bfada1127902e5364f258';
 
 class LoadingScreen extends StatefulWidget {
   @override
@@ -13,38 +15,32 @@ class _LoadingScreenState extends State<LoadingScreen> {
   @override
   void initState() {
     super.initState();
-    _getLocation();
+    _getLocationData();
   }
 
-  void _getLocation() async {
+  void _getLocationData() async {
     Location location = Location();
     await location.getCurrentLocation();
-    print(location.longitude);
-    print('This line of code is triggred');
-  }
-
-  void _getData() async {
-    http.Response response =
-        await http.get('https://samples.openweathermap.org/data/2.5/weather?lat=35&lon=139&appid=439d4b804bc8187953eb36d2a8c26a02');
-    if (response.statusCode == 200) {
-      var decodedData = jsonDecode(response.body);
-      double temperature = decodedData['main']['temp'];
-      int condition = decodedData['weather'][0]['id'];
-      String cityName = decodedData['name'];
-      print('$cityName: $temperature K and $condition');
-    } else {
-      print(response.statusCode);
-    }
+    NetworkHelper helper = NetworkHelper(
+        url: 'https://api.openweathermap.org/data/2.5/weather?lat=${location.longitude}&lon=${location.latitude}&appid=$kApiKey&units=metric');
+    var weatherData = await helper.getData();
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) {
+        return LocationScreen(
+          locationWeather: weatherData,
+        );
+      }),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    _getData();
     return Scaffold(
       body: Center(
-        child: RaisedButton(
-          onPressed: () {},
-          child: Text('Get Location'),
+        child: SpinKitDoubleBounce(
+          color: Colors.white,
+          size: 100.0,
         ),
       ),
     );

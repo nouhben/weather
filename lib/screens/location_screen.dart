@@ -2,11 +2,31 @@ import 'package:flutter/material.dart';
 import 'package:weather/utilities/constants.dart';
 
 class LocationScreen extends StatefulWidget {
+  final locationWeather;
+  LocationScreen({this.locationWeather});
   @override
   _LocationScreenState createState() => _LocationScreenState();
 }
 
 class _LocationScreenState extends State<LocationScreen> {
+  int _temperature;
+  int _condition;
+  String _cityName;
+  @override
+  void initState() {
+    super.initState();
+    updateUI(widget.locationWeather);
+  }
+
+  void updateUI(dynamic weatherData) {
+    setState(() {
+      double t = (weatherData['main']['temp']);
+      this._temperature = t.toInt();
+      this._cityName = weatherData['name'];
+      this._condition = weatherData['weather'][0]['id'];
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -15,8 +35,7 @@ class _LocationScreenState extends State<LocationScreen> {
           image: DecorationImage(
             image: AssetImage('images/location_background.jpg'),
             fit: BoxFit.cover,
-            colorFilter: ColorFilter.mode(
-                Colors.white.withOpacity(0.8), BlendMode.dstATop),
+            colorFilter: ColorFilter.mode(Colors.white.withOpacity(0.8), BlendMode.dstATop),
           ),
         ),
         constraints: BoxConstraints.expand(),
@@ -24,32 +43,48 @@ class _LocationScreenState extends State<LocationScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
+            children: <Widget>[
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
+                children: <Widget>[
                   FlatButton(
                     onPressed: () {},
-                    child: Icon(Icons.near_me, size: 50.0),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.only(left: 15.0),
-                    child: Row(
-                      children: [
-                        Text('32°', style: kTempTextStyle),
-                        Text('☀️', style: kConditionTextStyle),
-                      ],
+                    child: Icon(
+                      Icons.near_me,
+                      size: 50.0,
                     ),
                   ),
-                  Padding(
-                    padding: EdgeInsets.only(right: 15.0),
-                    child: Text(
-                      "It's 🍦 time in San Francisco!",
-                      textAlign: TextAlign.right,
-                      style: kMessageTextStyle,
+                  FlatButton(
+                    onPressed: () {},
+                    child: Icon(
+                      Icons.location_city,
+                      size: 50.0,
                     ),
                   ),
                 ],
+              ),
+              Padding(
+                padding: EdgeInsets.only(left: 15.0),
+                child: Row(
+                  children: <Widget>[
+                    Text(
+                      this._temperature.ceil().toString() + 'º',
+                      style: kTempTextStyle,
+                    ),
+                    Text(
+                      this._condition.toString(),
+                      style: kConditionTextStyle,
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.only(right: 15.0),
+                child: Text(
+                  "It's 🍦 time in San Francisco!",
+                  textAlign: TextAlign.right,
+                  style: kMessageTextStyle,
+                ),
               ),
             ],
           ),
