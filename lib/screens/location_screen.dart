@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:weather/services/weather.dart';
 import 'package:weather/utilities/constants.dart';
 
 class LocationScreen extends StatefulWidget {
@@ -10,8 +11,10 @@ class LocationScreen extends StatefulWidget {
 
 class _LocationScreenState extends State<LocationScreen> {
   int _temperature;
-  int _condition;
+  String _weatherIcon;
+  String _weatherMessage;
   String _cityName;
+  WeatherModel _weather = WeatherModel();
   @override
   void initState() {
     super.initState();
@@ -20,10 +23,11 @@ class _LocationScreenState extends State<LocationScreen> {
 
   void updateUI(dynamic weatherData) {
     setState(() {
-      double t = (weatherData['main']['temp']);
-      this._temperature = t.toInt();
+      this._temperature = weatherData['main']['temp'];
       this._cityName = weatherData['name'];
-      this._condition = weatherData['weather'][0]['id'];
+      var condition = weatherData['weather'][0]['id'];
+      this._weatherIcon = _weather.getWeatherIcon(condition);
+      this._weatherMessage = _weather.getMessage(this._temperature.toInt());
     });
   }
 
@@ -48,7 +52,9 @@ class _LocationScreenState extends State<LocationScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   FlatButton(
-                    onPressed: () {},
+                    onPressed: () async {
+                      var weatherData = await _weather.getLocationWeather();
+                    },
                     child: Icon(
                       Icons.near_me,
                       size: 50.0,
@@ -64,25 +70,25 @@ class _LocationScreenState extends State<LocationScreen> {
                 ],
               ),
               Padding(
-                padding: EdgeInsets.only(left: 15.0),
+                padding: EdgeInsets.only(left: 32.0),
                 child: Row(
                   children: <Widget>[
                     Text(
-                      this._temperature.ceil().toString() + 'º',
+                      this._temperature.toString() ?? '' + 'º',
                       style: kTempTextStyle,
                     ),
                     Text(
-                      this._condition.toString(),
+                      this._weatherIcon ?? '',
                       style: kConditionTextStyle,
                     ),
                   ],
                 ),
               ),
               Padding(
-                padding: EdgeInsets.only(right: 15.0),
+                padding: EdgeInsets.only(left: 32.0),
                 child: Text(
-                  "It's 🍦 time in San Francisco!",
-                  textAlign: TextAlign.right,
+                  '${this._weatherMessage} in ${this._cityName}' ?? '',
+                  textAlign: TextAlign.left,
                   style: kMessageTextStyle,
                 ),
               ),
