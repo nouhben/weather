@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:weather/screens/city_screen.dart';
 import 'package:weather/services/weather.dart';
 import 'package:weather/utilities/constants.dart';
 
@@ -23,6 +24,13 @@ class _LocationScreenState extends State<LocationScreen> {
 
   void updateUI(dynamic weatherData) {
     setState(() {
+      if (weatherData == null) {
+        this._temperature = 0;
+        this._cityName = '';
+        this._weatherMessage = 'Please ennable internet and location';
+        this._weatherIcon = 'ERROR';
+        return;
+      }
       this._temperature = weatherData['main']['temp'];
       this._cityName = weatherData['name'];
       var condition = weatherData['weather'][0]['id'];
@@ -61,7 +69,16 @@ class _LocationScreenState extends State<LocationScreen> {
                     ),
                   ),
                   FlatButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) {
+                            return CityScreen();
+                          },
+                        ),
+                      );
+                    },
                     child: Icon(
                       Icons.location_city,
                       size: 50.0,
