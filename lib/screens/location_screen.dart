@@ -11,7 +11,7 @@ class LocationScreen extends StatefulWidget {
 }
 
 class _LocationScreenState extends State<LocationScreen> {
-  int _temperature;
+  var _temperature; //could be a double or int
   String _weatherIcon;
   String _weatherMessage;
   String _cityName;
@@ -31,6 +31,7 @@ class _LocationScreenState extends State<LocationScreen> {
         this._weatherIcon = 'ERROR';
         return;
       }
+      print(weatherData);
       this._temperature = weatherData['main']['temp'];
       this._cityName = weatherData['name'];
       var condition = weatherData['weather'][0]['id'];
@@ -69,8 +70,8 @@ class _LocationScreenState extends State<LocationScreen> {
                     ),
                   ),
                   FlatButton(
-                    onPressed: () {
-                      Navigator.push(
+                    onPressed: () async {
+                      var typedName = await Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) {
@@ -78,6 +79,11 @@ class _LocationScreenState extends State<LocationScreen> {
                           },
                         ),
                       );
+                      //after it is popped out the we can get the data form the other widget
+                      if (typedName != null || typedName.toString() == '') {
+                        var weatherData = await _weather.getCityWeather(typedName);
+                        updateUI(weatherData);
+                      }
                     },
                     child: Icon(
                       Icons.location_city,
